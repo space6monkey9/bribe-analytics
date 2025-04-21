@@ -1,0 +1,14 @@
+{
+    "builds": [
+      {
+        "src": "graph.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "graph.py"
+      }
+    ]
+  }
