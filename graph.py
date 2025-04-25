@@ -221,4 +221,5 @@ if __name__ == "__main__":
         # Return an empty figure if no data is found
         return fig if fig is not None else {}
     
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))  # fallback to 10000 if PORT is unset
+    app.run(host="0.0.0.0", port=port)
