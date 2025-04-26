@@ -148,25 +148,6 @@ if __name__ == "__main__":
 
     app.layout = html.Div(
             children=[
-                html.H1(
-                    className="header",
-                    children="Bribe Analytics Dashboard",
-                    style={
-                        "text-align": "center",
-                        "font-size": "32px",
-                        "font-family": "Arial, sans-serif",
-                    },
-                ),
-                html.Hr(),
-                html.H2(
-                    className="subheader",
-                    children="Interesting datapoints to explore",
-                    style={
-                        "text-align": "center",
-                        "font-family": "Arial, sans-serif",
-                        "font-weight": "500",
-                    },
-                ),
                 html.Div(
                     children=[
                         html.Label("Graphs: "),
