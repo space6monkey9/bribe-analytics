@@ -39,16 +39,39 @@ def plot_bribe_amount_distribution():
         print("No data available for bribe amount distribution.")
         return None #return an empty figure
 
-    fig = px.histogram(df, x="bribe_amt",
-                       title="Distribution of Reported Bribe Amounts",
-                       labels={'bribe_amt': 'Bribe Amount (INR)'},
-                       nbins=50, 
-                       template="plotly_white")
-    fig.update_layout(yaxis_title="Number of Reports")
+    bin_edges = [0, 500, 1000, 1500, 2000, 3000, 5000, 10000, 20000, 30000, 40000, 50000, float('inf')]
+    # labels for the bins
+    bin_labels = [
+        '₹1-500', '₹501-1000', '₹1001-1500', '₹1501-2000', '₹2001-3000',
+        '₹3001-5000', '₹5001-10000', '₹10001-20000', '₹20001-30000',
+        '₹30001-40000', '₹40001-50000', '>₹50000'
+    ]
+
+    # Create a new column with the bin category for each bribe amount
+    # 'right=True' means bins include the right edge (e.g., 500 is in '₹1-500')
+    df['bribe_range'] = pd.cut(df['bribe_amt'], bins=bin_edges, labels=bin_labels, right=True)
+
+    # Count the frequency of reports in each bin
+    bribe_counts = df['bribe_range'].value_counts().reset_index()
+    bribe_counts.columns = ['Bribe Amount Range', 'Number of Reports']
+
+    # Ensure the categories are ordered correctly for the plot
+    bribe_counts['Bribe Amount Range'] = pd.Categorical(bribe_counts['Bribe Amount Range'], categories=bin_labels, ordered=True)
+    bribe_counts = bribe_counts.sort_values('Bribe Amount Range')
+
+    fig = px.bar(bribe_counts,
+                 x='Bribe Amount Range',
+                 y='Number of Reports',
+                 title="Distribution of Reported Bribe Amounts by Range",
+                 labels={'Bribe Amount Range': 'Bribe Amount (INR) Range'},
+                 template="plotly_white")
+    
+    fig.update_layout(xaxis_tickangle=-45)
+
     return fig
 
 def plot_total_bribe_amount_by_state():
-    #Generates an interactive bar chart of total bribe amounts by state/UT.
+    #Generates bar chart of total bribe amounts by state/UT.
     sql = """
         SELECT state_ut, SUM(bribe_amt) AS total_amount
         FROM bribe
@@ -69,7 +92,7 @@ def plot_total_bribe_amount_by_state():
     return fig
 
 def plot_bribes_over_time():
-    #Generates an interactive line chart of bribe reports over time (monthly).
+    #Generates line chart of bribe reports over time (monthly).
     sql = "SELECT doi FROM bribe WHERE doi IS NOT NULL;"
     df = get_data_as_dataframe(sql)
 
@@ -99,7 +122,7 @@ def plot_bribes_over_time():
     return fig
 
 def plot_top_departments_by_bribe_amount(top_n=15):
-    #Generates an interactive bar chart of top 15 departments by total bribe amount.
+    #Generates bar chart of top 15 departments by total bribe amount.
     sql = """
         SELECT dept, SUM(bribe_amt) AS total_amount
         FROM bribe
@@ -122,7 +145,7 @@ def plot_top_departments_by_bribe_amount(top_n=15):
     return fig
 
 def plot_top_districts_by_bribe_amount(top_n=20):
-    #Generates an interactive bar chart of top 20 districts by total bribe amount.
+    #Generates  bar chart of top 20 districts by total bribe amount.
     sql = """
         SELECT district, SUM(bribe_amt) AS total_amount
         FROM bribe
@@ -204,3 +227,5 @@ if __name__ == "__main__":
     
     port = int(os.environ.get("PORT", 10000))  # fallback to 10000 if PORT is unset
     app.run(host="0.0.0.0", port=port)
+    #app.run(debug=True)
+
